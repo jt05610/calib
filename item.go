@@ -9,10 +9,10 @@ type Item interface {
 	DeleteTime() *time.Time
 }
 
-type ItemService interface {
-	Add(item Item) error
-	Remove(item Item) error
-	Update(item Item) error
-	Get(id uint) (Item, error)
-	GetAll() ([]Item, error)
+type ItemService[T Item] interface {
+	Add(item T) error
+	Remove(item T) error
+	Update(item T) error
+	Get(id uint) (T, error)
+	GetAll() ([]T, error)
 }
