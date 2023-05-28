@@ -6,73 +6,57 @@ import (
 	"time"
 )
 
-type cal struct {
+type Cal struct {
 	gorm.Model
-	xLabel string
-	yLabel string
-	points []*point
-	result *regResult
+	XLabel string
+	YLabel string
+	Points []*Point
+	Result *RegResult
 }
 
-func (c *cal) AddPoint(x, y float64) error {
-	if c.result != nil {
+func (c *Cal) AddPoint(x, y float64) error {
+	if c.Result != nil {
 		return calib.ErrCalibrationComplete
 	}
-	if c.points == nil {
-		c.points = make([]*point, 0)
+	if c.Points == nil {
+		c.Points = make([]*Point, 0)
 	}
-	c.points = append(c.points, &point{x: x, y: y})
+	c.Points = append(c.Points, &Point{X: x, Y: y})
 	return nil
 }
 
-func (c *cal) Ref() uint {
+func (c *Cal) Ref() uint {
 	return c.ID
 }
 
-func (c *cal) CreateTime() *time.Time {
+func (c *Cal) CreateTime() *time.Time {
 	return &c.CreatedAt
 }
 
-func (c *cal) UpdateTime() *time.Time {
+func (c *Cal) UpdateTime() *time.Time {
 	return &c.UpdatedAt
 }
 
-func (c *cal) DeleteTime() *time.Time {
+func (c *Cal) DeleteTime() *time.Time {
 	return &c.DeletedAt.Time
 }
 
-func (c *cal) XLabel() string {
-	return c.xLabel
-}
-
-func (c *cal) YLabel() string {
-	return c.yLabel
-}
-
-func (c *cal) Points() []calib.Point {
-	ret := make([]calib.Point, len(c.points))
-	for i, p := range c.points {
-		ret[i] = p
-	}
-	return ret
-}
-
-func (c *cal) Result() calib.RegResult {
-	if c.result == nil {
-		xs := make([]float64, len(c.points))
-		ys := make([]float64, len(c.points))
-		for i, p := range c.points {
-			xs[i] = p.X()
-			ys[i] = p.Y()
+func (c *Cal) Regress() calib.RegResult {
+	if c.Result == nil {
+		xs := make([]float64, len(c.Points))
+		ys := make([]float64, len(c.Points))
+		for i, p := range c.Points {
+			xs[i] = p.X
+			ys[i] = p.Y
 		}
-		c.result = Regress(xs, ys).(*regResult)
+		c.Result = Regress(xs, ys).(*RegResult)
 	}
-	return c.result
+	return c.Result
 }
 
-func Cal(xLabel, yLabel string) calib.Calibration {
-	return &cal{
-		xLabel: xLabel,
-		yLabel: yLabel,
+func NewCal(xLabel, yLabel string) calib.Calibration {
+	return &Cal{
+		XLabel: xLabel,
+		YLabel: yLabel,
 	}
 }

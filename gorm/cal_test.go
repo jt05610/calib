@@ -13,7 +13,7 @@ func checkTolerance(t *testing.T, expected, actual, tolerance float64) {
 }
 
 func TestCal(t *testing.T) {
-	cal := gorm.Cal("steps", "masses")
+	cal := gorm.NewCal("steps", "masses")
 	slope := 5.0
 	tol := 0.05
 	for i := 0; i < 100; i++ {
@@ -25,11 +25,11 @@ func TestCal(t *testing.T) {
 		}
 	}
 
-	result := cal.Result()
+	result := cal.Regress().(*gorm.RegResult)
 	if result == nil {
 		t.Error("nil result")
 	}
-	checkTolerance(t, slope, result.Slope(), 0.5)
-	checkTolerance(t, 0, result.Intercept(), 3)
-	checkTolerance(t, 1, result.R2(), tol*2)
+	checkTolerance(t, slope, result.Slope, 0.5)
+	checkTolerance(t, 0, result.Intercept, 3)
+	checkTolerance(t, 1, result.R2, tol*2)
 }
