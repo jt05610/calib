@@ -10,7 +10,7 @@ type cal struct {
 	gorm.Model
 	xLabel string
 	yLabel string
-	points []calib.Point
+	points []*point
 	result *regResult
 }
 
@@ -19,7 +19,7 @@ func (c *cal) AddPoint(x, y float64) error {
 		return calib.ErrCalibrationComplete
 	}
 	if c.points == nil {
-		c.points = make([]calib.Point, 0)
+		c.points = make([]*point, 0)
 	}
 	c.points = append(c.points, &point{x: x, y: y})
 	return nil
@@ -50,12 +50,22 @@ func (c *cal) YLabel() string {
 }
 
 func (c *cal) Points() []calib.Point {
-	return c.points
+	ret := make([]calib.Point, len(c.points))
+	for i, p := range c.points {
+		ret[i] = p
+	}
+	return ret
 }
 
 func (c *cal) Result() calib.RegResult {
 	if c.result == nil {
-		c.result = &regResult{}
+		xs := make([]float64, len(c.points))
+		ys := make([]float64, len(c.points))
+		for i, p := range c.points {
+			xs[i] = p.X()
+			ys[i] = p.Y()
+		}
+		c.result = Regress(xs, ys).(*regResult)
 	}
 	return c.result
 }
