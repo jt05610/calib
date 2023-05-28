@@ -38,7 +38,7 @@ func (s service) Get(id uint) (*Cal, error) {
 
 func (s service) GetAll() ([]*Cal, error) {
 	var ret []*Cal
-	s.db.Find(&ret)
+	s.db.Model(&Cal{}).Preload("Points").Preload("Result").Find(&ret)
 	if len(ret) == 0 {
 		return nil, calib.ErrNotFound
 	}
